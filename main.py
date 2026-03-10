@@ -1,47 +1,28 @@
 from fastapi import FastAPI
-from bs4 import BeautifulSoup
-import requests # Usaremos esto como alternativa rápida si Playwright falla
 
 app = FastAPI()
 
 @app.get("/api/hipotecas")
 def obtener_hipotecas():
-    # Estos son los datos reales actualizados que verá tu App
-    datos_reales = [
-        {"banco": "Banco Santander", "tin": "2.60%", "tae": "2.95%"},
-        {"banco": "BBVA", "tin": "2.75%", "tae": "3.15%"},
-        {"banco": "Evo Banco", "tin": "2.45%", "tae": "2.85%"},
-        {"banco": "Openbank", "tin": "2.72%", "tae": "3.02%"}
+    # Base de datos actualizada a Marzo 2026
+    datos_marzo = [
+        {"banco": "Unicaja", "tin": "1,90%", "fecha": "02/03/2026", "vinculaciones": "N+SH+SV"},
+        {"banco": "Caixabank", "tin": "2,00%", "fecha": "07/03/2026", "vinculaciones": "N+SH+SV"},
+        {"banco": "BBVA", "tin": "2,00%", "fecha": "07/03/2026", "vinculaciones": "N+SH+SV"},
+        {"banco": "Unicaja", "tin": "2,10%", "fecha": "02/03/2026", "vinculaciones": "Sin vinculaciones"},
+        {"banco": "Kutxabank", "tin": "2,10%", "fecha": "03/03/2026", "vinculaciones": "N+SH+SV"},
+        {"banco": "Santander", "tin": "2,11%", "fecha": "03/03/2026", "vinculaciones": "N"},
+        {"banco": "Abanca", "tin": "2,15%", "fecha": "03/03/2026", "vinculaciones": "N+SH"},
+        {"banco": "Ibercaja", "tin": "2,25%", "fecha": "02/03/2026", "vinculaciones": "N+SH"},
+        {"banco": "Caja Rural Jaén", "tin": "2,35%", "fecha": "07/03/2026", "vinculaciones": "N+SH"},
+        {"banco": "Abanca", "tin": "2,50%", "fecha": "05/03/2026", "vinculaciones": "N+SH+SV"},
+        {"banco": "Santander", "tin": "3,20%", "fecha": "04/03/2026", "vinculaciones": "Sin vinculaciones"}
+        # Puedes añadir el resto siguiendo este formato
     ]
     
-    url = "https://www.economiaresponsablefinanzas.com/hipotecas/las-mejores-ofertas-hipotecarias/"
-    
-    try:
-        # Intentamos una extracción rápida sin navegador (más compatible con la nube)
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        respuesta = requests.get(url, headers=headers, timeout=10)
-        
-        if respuesta.status_code == 200:
-            soup = BeautifulSoup(respuesta.text, 'html.parser')
-            ofertas_extraidas = []
-            tablas = soup.find_all('table')
-            if tablas:
-                filas = tablas[0].find_all('tr')
-                for fila in filas[1:]: 
-                    columnas = fila.find_all('td')
-                    if len(columnas) >= 3:
-                        ofertas_extraidas.append({
-                            "banco": columnas[0].text.strip(),
-                            "tin": columnas[1].text.strip(),
-                            "tae": columnas[2].text.strip()
-                        })
-            
-            if ofertas_extraidas:
-                return {"status": "success", "data": ofertas_extraidas}
-
-        # Si la extracción falla o el servidor web nos bloquea, devolvemos los datos reales de respaldo
-        return {"status": "success", "data": datos_reales}
-
-    except Exception:
-        # Si hay cualquier error técnico, la App sigue recibiendo datos y funcionando
-        return {"status": "success", "data": datos_reales}
+    return {
+        "status": "success",
+        "tipo": "Fijo",
+        "mes": "Marzo 2026",
+        "data": datos_marzo
+    }
