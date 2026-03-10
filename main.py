@@ -1,10 +1,13 @@
 import os
-# IMPORTANTE: Definir la ruta antes de importar playwright
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = os.path.join(os.getcwd(), "pw-browsers")
-
+import subprocess
 from fastapi import FastAPI
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
+
+# Forzamos la ruta absoluta de la carpeta de navegadores
+current_dir = os.path.dirname(os.path.abspath(__file__))
+browser_folder = os.path.join(current_dir, "pw-browsers")
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = browser_folder
 
 app = FastAPI()
 
@@ -14,8 +17,7 @@ def obtener_hipotecas():
     
     try:
         with sync_playwright() as p:
-            # Usamos la ruta local para el ejecutable
-            browser_path = os.environ["PLAYWRIGHT_BROWSERS_PATH"]
+            # Lanzamos el navegador asegurándonos de que use la ruta configurada
             navegador = p.chromium.launch(headless=True)
             contexto = navegador.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -40,11 +42,12 @@ def obtener_hipotecas():
                     
         if not ofertas_fijas:
             ofertas_fijas = [
-                {"banco": "Banco Santander", "tin": "2.60%", "tae": "2.95%"},
-                {"banco": "BBVA", "tin": "2.75%", "tae": "3.15%"},
-                {"banco": "Evo Banco", "tin": "2.45%", "tae": "2.85%"}
+                {"banco": "Banco Santander (Backup)", "tin": "2.60%", "tae": "2.95%"},
+                {"banco": "BBVA (Backup)", "tin": "2.75%", "tae": "3.15%"},
+                {"banco": "Evo Banco (Backup)", "tin": "2.45%", "tae": "2.85%"}
             ]
         return {"status": "success", "data": ofertas_fijas}
 
     except Exception as e:
+        # Si falla, devolvemos el error exacto para diagnosticar
         return {"status": "error", "message": str(e), "data": []}
